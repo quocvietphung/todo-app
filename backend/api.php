@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once 'Todo.php';
 
-$todo = new Todo(__DIR__ . '/todos.db');
+$todo = new Todo(__DIR__ . '/db/todos.db');
 
 $action = $_GET['action'] ?? '';
 

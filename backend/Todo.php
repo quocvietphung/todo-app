@@ -3,7 +3,7 @@
 class Todo {
     private $db;
 
-    public function __construct($dbPath = 'todos.db') {
+    public function __construct($dbPath = __DIR__ . '/db/todos.db') {
         $this->db = new SQLite3($dbPath);
         $this->initDatabase();
     }
