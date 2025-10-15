@@ -2,17 +2,20 @@
   "name": "vietphung/todo-app",
   "description": "A clean OOP Todo App with PHP + SQLite backend, following PSR-4 autoloading.",
   "type": "project",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "Core\\": "core/",
       "Model\\": "model/",
       "Repository\\": "repository/",
       "Service\\": "service/",
-      "Api\\": "api/"
+      "Controller\\": "controller/"
     }
   },
   "autoload-dev": {
-    "Test\\": "tests/"
+    "psr-4": {
+      "Test\\": "tests/"
+    }
   },
   "require": {
     "php": ">=8.0"
@@ -22,6 +25,9 @@
   },
   "scripts": {
     "test": "vendor/bin/phpunit --testdox",
-    "dump": "composer dump-autoload"
-  }
+    "dump": "composer dump-autoload",
+    "serve": "php -S localhost:8000 -t public"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
