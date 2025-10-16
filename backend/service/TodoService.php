@@ -2,12 +2,17 @@
 
 namespace Service;
 
+use Core\Interfaces\ServiceInterface;
 use Repository\TodoRepository;
 
-// Simple service layer that delegates to the repository. Keeps business logic
-// separate from persistence and makes unit testing straightforward by
-// allowing the repository to be mocked.
-class TodoService
+/**
+ * TodoService
+ * ------------------------------
+ * Lớp xử lý nghiệp vụ (business logic) cho Todo.
+ * Tầng này không thao tác trực tiếp với database,
+ * mà ủy quyền cho Repository để tách biệt logic & persistence.
+ */
+class TodoService implements ServiceInterface
 {
     private TodoRepository $repo;
 
@@ -16,29 +21,81 @@ class TodoService
         $this->repo = $repo;
     }
 
-    // Return all todos
-    public function getAllTodos(): array
+    /**
+     * 🟢 Lấy tất cả todo
+     */
+    public function getAll(): array
     {
-        return $this->repo->getAll();
+        return $this->repo->findAll();
     }
 
-    // Create a new todo with a title. Returns the new id.
-    public function createTodo(string $title): int
+    /**
+     * 🟢 Alias cho controller cũ — lấy tất cả todos
+     */
+    public function getAllTodos(): array
     {
-        $title = trim($title);
+        return $this->getAll();
+    }
+
+    /**
+     * 🟢 Lấy 1 todo theo id
+     */
+    public function getById(int $id): ?array
+    {
+        return $this->repo->findById($id);
+    }
+
+    /**
+     * 🟢 Tạo mới 1 todo
+     */
+    public function create(array $data): int
+    {
+        $title = trim($data['title'] ?? '');
         if ($title === '') {
             throw new \InvalidArgumentException('Title cannot be empty');
         }
-        return $this->repo->add($title);
+
+        return $this->repo->create(['title' => $title]);
     }
 
-    // Mark a todo as completed. Returns true on success, false otherwise.
+    /**
+     * 🟢 Cập nhật nội dung todo
+     */
+    public function update(int $id, array $data): bool
+    {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException('Invalid ID');
+        }
+
+        $title = trim($data['title'] ?? '');
+        if ($title === '') {
+            throw new \InvalidArgumentException('Title cannot be empty');
+        }
+
+        return $this->repo->update($id, ['title' => $title]);
+    }
+
+    /**
+     * 🟢 Xóa todo
+     */
+    public function delete(int $id): bool
+    {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException('Invalid ID');
+        }
+
+        return $this->repo->delete($id);
+    }
+
+    /**
+     * 🟢 Đánh dấu hoàn thành todo
+     */
     public function completeTodo(int $id): bool
     {
         if ($id <= 0) {
-            throw new \InvalidArgumentException('Invalid id');
+            throw new \InvalidArgumentException('Invalid ID');
         }
+
         return $this->repo->markAsDone($id);
     }
 }
-

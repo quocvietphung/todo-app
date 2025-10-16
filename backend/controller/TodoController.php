@@ -13,20 +13,25 @@ class TodoController
     public function __construct()
     {
         $pdo = (new Database())->getConnection();
-        $repository = new TodoRepository($pdo);
-        $this->service = new TodoService($repository);
+        $repo = new TodoRepository($pdo);
+        $this->service = new TodoService($repo);
     }
 
-    public function list(): void
+    // ✅ Lấy danh sách todos
+    public function listTodos(): array
     {
-        header('Content-Type: application/json');
-        echo json_encode($this->service->getAll());
+        return $this->service->getAllTodos();
     }
 
-    public function add(): void
+    // ✅ Thêm mới todo
+    public function create(string $title): int
     {
-        $input = json_decode(file_get_contents('php://input'), true);
-        $id = $this->service->create($input);
-        echo json_encode(['id' => $id]);
+        return $this->service->createTodo($title);
+    }
+
+    // ✅ Đánh dấu hoàn thành
+    public function markAsDone(int $id): bool
+    {
+        return $this->service->completeTodo($id);
     }
 }
