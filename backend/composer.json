@@ -9,7 +9,8 @@
       "Model\\": "model/",
       "Repository\\": "repository/",
       "Service\\": "service/",
-      "Controller\\": "controller/"
+      "Controller\\": "controller/",
+      "Migrations\\": "migrations/"
     }
   },
   "autoload-dev": {
@@ -26,7 +27,8 @@
   "scripts": {
     "test": "vendor/bin/phpunit --testdox",
     "dump": "composer dump-autoload",
-    "serve": "php -S localhost:8000 -t public"
+    "serve": "php -S localhost:8000 -t public",
+    "migrate": "php migrate.php"
   },
   "minimum-stability": "stable",
   "prefer-stable": true
