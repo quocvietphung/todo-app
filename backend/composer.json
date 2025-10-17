@@ -30,6 +30,9 @@
     "serve": "php -S localhost:8000 -t public",
     "migrate": "php migrate.php"
   },
+  "config": {
+    "process-timeout": 0
+  },
   "minimum-stability": "stable",
   "prefer-stable": true
 }
