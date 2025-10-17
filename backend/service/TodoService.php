@@ -8,29 +8,37 @@ use Repository\TodoRepository;
 /**
  * ✅ TodoService
  * ------------------------------
- * Lớp xử lý nghiệp vụ (business logic) cho Todo.
- * Tầng này không thao tác trực tiếp với database,
- * mà ủy quyền cho Repository để tách biệt logic & persistence.
+ * Tầng xử lý nghiệp vụ (Business Logic Layer) cho Todo.
+ * - Không truy cập DB trực tiếp.
+ * - Ủy quyền cho Repository xử lý truy vấn.
+ * - Thực hiện validate dữ liệu & quy tắc nghiệp vụ.
  */
 class TodoService implements ServiceInterface
 {
     private TodoRepository $repo;
 
+    /**
+     * Dependency Injection: Nhận TodoRepository từ bên ngoài.
+     */
     public function __construct(TodoRepository $repo)
     {
         $this->repo = $repo;
     }
 
+    // ============================================================
+    // 📋 ĐỌC DỮ LIỆU
+    // ============================================================
+
     /**
-     * 🟢 Lấy tất cả todos
+     * 🟢 Lấy toàn bộ todos.
      */
     public function getAll(): array
     {
-        return $this->repo->findAll();
+        return $this->repo->getAll();
     }
 
     /**
-     * 🟢 Alias cho controller cũ — lấy tất cả todos
+     * 🟢 Alias tương thích cho controller cũ.
      */
     public function getAllTodos(): array
     {
@@ -38,15 +46,23 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Lấy 1 todo theo ID
+     * 🟢 Lấy 1 todo theo ID.
      */
     public function getById(int $id): ?array
     {
         return $this->repo->findById($id);
     }
 
+    // ============================================================
+    // ✏️ GHI DỮ LIỆU
+    // ============================================================
+
     /**
-     * 🟢 Tạo mới 1 todo (chuẩn interface)
+     * 🟢 Tạo mới một todo từ mảng dữ liệu.
+     *
+     * @param array $data Dữ liệu chứa key 'title'
+     * @return int ID của todo mới tạo
+     * @throws \InvalidArgumentException nếu title trống
      */
     public function create(array $data): int
     {
@@ -55,12 +71,11 @@ class TodoService implements ServiceInterface
             throw new \InvalidArgumentException('Title cannot be empty');
         }
 
-        return $this->repo->create(['title' => $title]);
+        return $this->repo->add($title);
     }
 
     /**
-     * 🟢 Alias: tạo todo trực tiếp từ chuỗi title
-     * Giúp tương thích với TodoController::create($title)
+     * 🟢 Alias cho Controller: tạo todo trực tiếp từ chuỗi title.
      */
     public function createTodo(string $title): int
     {
@@ -68,7 +83,7 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Cập nhật nội dung todo
+     * 🟢 Cập nhật nội dung của todo.
      */
     public function update(int $id, array $data): bool
     {
@@ -85,7 +100,7 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Xóa todo
+     * 🟢 Xóa todo.
      */
     public function delete(int $id): bool
     {
@@ -97,7 +112,7 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Đánh dấu hoàn thành todo
+     * 🟢 Đánh dấu todo là hoàn thành.
      */
     public function completeTodo(int $id): bool
     {

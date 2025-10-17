@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true" verbose="true">
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+        bootstrap="vendor/autoload.php"
+        colors="true"
+        verbose="true"
+        failOnWarning="false"
+        failOnRisky="false"
+        convertDeprecationsToExceptions="false"
+>
     <testsuites>
         <testsuite name="Todo App Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
     <php>
         <ini name="error_reporting" value="-1"/>
+        <env name="TZ" value="Europe/Berlin"/>
     </php>
 </phpunit>
-
