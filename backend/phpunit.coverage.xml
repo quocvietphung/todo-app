@@ -6,6 +6,7 @@
         colors="true"
         failOnWarning="false"
         failOnRisky="false"
+        convertDeprecationsToExceptions="false"
         cacheResult="false"
 >
     <testsuites>
@@ -14,8 +15,23 @@
         </testsuite>
     </testsuites>
 
+    <coverage>
+        <include>
+            <directory suffix=".php">core</directory>
+            <directory suffix=".php">repository</directory>
+            <directory suffix=".php">service</directory>
+            <directory suffix=".php">controller</directory>
+        </include>
+
+        <report>
+            <text outputFile="php://stdout" showUncoveredFiles="false"/>
+            <html outputDirectory="coverage-report" lowUpperBound="50" highLowerBound="80"/>
+        </report>
+    </coverage>
+
     <php>
         <ini name="error_reporting" value="-1"/>
         <env name="TZ" value="Europe/Berlin"/>
+        <env name="XDEBUG_MODE" value="coverage"/>
     </php>
 </phpunit>

@@ -32,7 +32,8 @@
   "scripts": {
     "serve": "php -S localhost:8000 -t public",
     "dump": "composer dump-autoload",
-    "test": "vendor/bin/phpunit --testdox",
+    "test": "vendor/bin/phpunit --testdox -c phpunit.xml",
+    "coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --testdox -c phpunit.coverage.xml --coverage-html coverage-report",
     "migrate": "php migrate.php",
     "migrate:rollback": "php migrate.php down",
     "migrate:fresh": "php migrate.php down && php migrate.php"
