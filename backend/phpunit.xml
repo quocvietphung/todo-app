@@ -5,9 +5,12 @@
         bootstrap="vendor/autoload.php"
         colors="true"
         verbose="true"
+
         failOnWarning="false"
         failOnRisky="false"
         convertDeprecationsToExceptions="false"
+
+        cacheResult="false"
 >
     <testsuites>
         <testsuite name="Todo App Test Suite">
@@ -16,7 +19,9 @@
     </testsuites>
 
     <php>
+        <!-- Hiển thị mọi lỗi -->
         <ini name="error_reporting" value="-1"/>
+        <!-- Đặt timezone mặc định -->
         <env name="TZ" value="Europe/Berlin"/>
     </php>
 </phpunit>
