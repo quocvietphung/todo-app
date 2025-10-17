@@ -6,7 +6,7 @@ use Core\Interfaces\ServiceInterface;
 use Repository\TodoRepository;
 
 /**
- * TodoService
+ * ✅ TodoService
  * ------------------------------
  * Lớp xử lý nghiệp vụ (business logic) cho Todo.
  * Tầng này không thao tác trực tiếp với database,
@@ -22,7 +22,7 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Lấy tất cả todo
+     * 🟢 Lấy tất cả todos
      */
     public function getAll(): array
     {
@@ -38,7 +38,7 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Lấy 1 todo theo id
+     * 🟢 Lấy 1 todo theo ID
      */
     public function getById(int $id): ?array
     {
@@ -46,7 +46,7 @@ class TodoService implements ServiceInterface
     }
 
     /**
-     * 🟢 Tạo mới 1 todo
+     * 🟢 Tạo mới 1 todo (chuẩn interface)
      */
     public function create(array $data): int
     {
@@ -56,6 +56,15 @@ class TodoService implements ServiceInterface
         }
 
         return $this->repo->create(['title' => $title]);
+    }
+
+    /**
+     * 🟢 Alias: tạo todo trực tiếp từ chuỗi title
+     * Giúp tương thích với TodoController::create($title)
+     */
+    public function createTodo(string $title): int
+    {
+        return $this->create(['title' => $title]);
     }
 
     /**
