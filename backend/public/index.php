@@ -1,67 +1,55 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Core\Container;
+use Core\Router;
+use Core\Response;
 use Controller\TodoController;
 
-// 🌐 Cho phép gọi từ frontend (React, Postman, v.v.)
+// 🌍 Cấu hình CORS & JSON
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
-
-// ⚙️ Xử lý preflight request (CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// 🚀 Khởi tạo controller
-$controller = new TodoController();
+// ✅ Khởi tạo Container (Singleton)
+$container = Container::getInstance();
 
-// 🧭 Lấy action từ query string
-$action = $_GET['action'] ?? 'list';
+// ✅ Container sẽ inject TodoService → TodoRepository → PDO tự động
+$todoController = $container->get(TodoController::class);
 
-// 📦 Đọc dữ liệu JSON từ request body
-$input = json_decode(file_get_contents('php://input'), true) ?? [];
+// ✅ Khởi tạo Router
+$router = new Router();
 
-try {
-    switch ($action) {
-        case 'list':
-            $result = $controller->listTodos();
-            echo json_encode([
-                'success' => true,
-                'todos' => $result  // ✅ đổi từ 'data' → 'todos'
-            ]);
-            break;
+/**
+ * -----------------------------------------------------
+ * 🧭 ROUTES ĐỊNH NGHĨA CÁC API ENDPOINT CHO TODO
+ * -----------------------------------------------------
+ */
 
-        case 'add':
-            $title = $input['title'] ?? '';
-            $id = $controller->create($title);
-            echo json_encode([
-                'success' => true,
-                'id' => $id
-            ]);
-            break;
+// 📄 GET /api/todos → Lấy danh sách tất cả todo
+$router->add('/api/todos', fn() => Response::json([
+    'success' => true,
+    'todos' => $todoController->listTodos()
+]), 'GET');
 
-        case 'done':
-            $id = (int)($input['id'] ?? 0);
-            $ok = $controller->markAsDone($id);
-            echo json_encode([
-                'success' => $ok
-            ]);
-            break;
+// ➕ POST /api/todos/add → Tạo mới todo
+$router->add('/api/todos/add', function() use ($todoController) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $id = $todoController->create($input['title'] ?? '');
+    return Response::json(['success' => true, 'id' => $id]);
+}, 'POST');
 
-        default:
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'error' => 'Invalid action'
-            ]);
-    }
-} catch (\Throwable $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
-}
+// ✅ POST /api/todos/done → Đánh dấu hoàn thành
+$router->add('/api/todos/done', function() use ($todoController) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $ok = $todoController->markAsDone((int)$input['id']);
+    return Response::json(['success' => $ok]);
+}, 'POST');
+
+// ❌ Nếu không khớp route nào → 404
+$router->dispatch();
