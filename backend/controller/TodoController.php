@@ -2,34 +2,47 @@
 
 namespace Controller;
 
-use Core\Database;
-use Repository\TodoRepository;
 use Service\TodoService;
 
+/**
+ * ✅ TodoController
+ * ------------------------------
+ * Controller xử lý các request liên quan đến Todo.
+ * - Không khởi tạo thủ công Repository/Database.
+ * - Toàn bộ dependency được inject tự động qua Container.
+ */
 class TodoController
 {
     private TodoService $service;
 
-    public function __construct()
+    /**
+     * 🧩 Dependency Injection:
+     * Container sẽ tự động inject TodoService (và bên trong Service sẽ inject Repository & PDO)
+     */
+    public function __construct(TodoService $service)
     {
-        $pdo = (new Database())->getConnection();
-        $repo = new TodoRepository($pdo);
-        $this->service = new TodoService($repo);
+        $this->service = $service;
     }
 
-    // ✅ Lấy danh sách todos
+    /**
+     * 🟢 Lấy danh sách tất cả todos
+     */
     public function listTodos(): array
     {
         return $this->service->getAllTodos();
     }
 
-    // ✅ Thêm mới todo
+    /**
+     * 🟢 Tạo mới một todo
+     */
     public function create(string $title): int
     {
         return $this->service->createTodo($title);
     }
 
-    // ✅ Đánh dấu hoàn thành
+    /**
+     * 🟢 Đánh dấu todo là hoàn thành
+     */
     public function markAsDone(int $id): bool
     {
         return $this->service->completeTodo($id);
