@@ -1,7 +1,7 @@
 <?php
 namespace Service;
 
-use Core\AbstractService;
+use Service\AbstractService;
 use Repository\TodoRepository;
 
 /**

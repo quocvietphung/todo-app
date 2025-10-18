@@ -1,5 +1,5 @@
 <?php
-namespace Core;
+namespace Service;
 
 use Core\Interfaces\ServiceInterface;
 use Core\Interfaces\RepositoryInterface;
