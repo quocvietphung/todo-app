@@ -1,31 +1,29 @@
 <?php
 namespace Core;
 
+use PDO;
+
+/**
+ * ✅ Database Singleton
+ * - Chỉ tạo 1 kết nối SQLite cho toàn app
+ * - Dùng chung connection trong mọi repository
+ */
 class Database
 {
-    private static ?\PDO $instance = null;
-    private string $dbPath;
+    private static ?PDO $connection = null;
 
-    public function __construct(string $dbPath = __DIR__ . '/../db/todos.db')
+    public static function getConnection(): PDO
     {
-        // 📦 Đường dẫn file SQLite (có thể thay bằng tên khác nếu cần)
-        $this->dbPath = $dbPath;
-
-        // 🧱 Nếu thư mục db chưa tồn tại thì tự động tạo
-        $dir = dirname($this->dbPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-    }
-
-    public function getConnection(): \PDO
-    {
-        if (self::$instance === null) {
-            // 🔗 Tạo kết nối SQLite (file-based)
-            self::$instance = new \PDO('sqlite:' . $this->dbPath);
-            self::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        if (!self::$connection) {
+            $path = __DIR__ . '/../db/todos.db';
+            $dsn = 'sqlite:' . $path;
+            self::$connection = new PDO($dsn);
+            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
 
-        return self::$instance;
+        return self::$connection;
     }
+
+    // 🚫 Không cho new
+    private function __construct() {}
 }
