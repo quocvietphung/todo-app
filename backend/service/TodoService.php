@@ -1,13 +1,14 @@
 <?php
 namespace Service;
 
-use Service\AbstractService;
 use Repository\TodoRepository;
 
 /**
  * ✅ TodoService
  * ------------------------------
  * Tầng nghiệp vụ cho Todo — kế thừa AbstractService
+ * - Chứa logic đặc thù cho Todo (validate, markAsDone)
+ * - Không truy cập DB trực tiếp, chỉ dùng Repository
  */
 class TodoService extends AbstractService
 {
@@ -36,6 +37,14 @@ class TodoService extends AbstractService
 
         // Gọi repository cụ thể (có thể khác so với create() gốc)
         return $this->repo->add($title);
+    }
+
+    /**
+     * 🟢 Alias cho Controller gọi chuỗi trực tiếp
+     */
+    public function createTodo(string $title): int
+    {
+        return $this->create(['title' => $title]);
     }
 
     /**
