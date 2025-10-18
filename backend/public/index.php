@@ -40,7 +40,7 @@ $router->add('/api/todos', fn() => Response::json([
 // ➕ POST /api/todos/add → Tạo mới todo
 $router->add('/api/todos/add', function() use ($todoController) {
     $input = json_decode(file_get_contents('php://input'), true);
-    $id = $todoController->create($input['title'] ?? '');
+    $id = $todoController->create($input);
     return Response::json(['success' => true, 'id' => $id]);
 }, 'POST');
 

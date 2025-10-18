@@ -40,14 +40,6 @@ class TodoService extends AbstractService
     }
 
     /**
-     * 🟢 Alias cho Controller gọi chuỗi trực tiếp
-     */
-    public function createTodo(string $title): int
-    {
-        return $this->create(['title' => $title]);
-    }
-
-    /**
      * 🟢 Đánh dấu hoàn thành todo.
      */
     public function completeTodo(int $id): bool

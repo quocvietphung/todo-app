@@ -35,9 +35,9 @@ class TodoController
     /**
      * 🟢 Tạo mới một todo
      */
-    public function create(string $title): int
+    public function create(array $data): int
     {
-        return $this->service->createTodo($title);
+        return $this->service->create($data);
     }
 
     /**
