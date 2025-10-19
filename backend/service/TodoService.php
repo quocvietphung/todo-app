@@ -36,7 +36,7 @@ class TodoService extends AbstractService
      */
     public function getAllTodos(): array
     {
-        return $this->getAll();
+        return $this->repo->getAll();
     }
 
     /**

@@ -10,17 +10,19 @@ class TodoRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        // ⚙️ Tạo SQLite in-memory cho mỗi test
+        // Create a fresh in-memory SQLite database
         $this->pdo = new \PDO('sqlite::memory:');
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        // 🧱 Tạo bảng todos (giống migration thực)
+        // Create todos table (matching migration schema)
         $this->pdo->exec("
             CREATE TABLE todos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 completed INTEGER DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME,
+                deleted_at DATETIME
             );
         ");
     }
@@ -54,6 +56,31 @@ class TodoRepositoryTest extends TestCase
 
         $this->assertNotNull($found);
         $this->assertEquals(1, $found['completed']);
+    }
+
+    public function testUpdateTitleChangesTodoText(): void
+    {
+        $repo = new TodoRepository($this->pdo);
+
+        $id = $repo->add('Old title');
+        $this->assertTrue($repo->updateTitle($id, 'Updated title'));
+
+        $rows = $repo->getAll();
+        $updated = array_filter($rows, fn($r) => (int)$r['id'] === $id);
+        $todo = reset($updated);
+
+        $this->assertSame('Updated title', $todo['title']);
+    }
+
+    public function testSoftDeleteRemovesFromGetAll(): void
+    {
+        $repo = new TodoRepository($this->pdo);
+
+        $id = $repo->add('Task to delete');
+        $this->assertTrue($repo->remove($id));
+
+        $rows = $repo->getAll();
+        $this->assertCount(0, $rows, 'Deleted todos should not appear in getAll()');
     }
 
     public function testGetAllReturnsEmptyWhenNoRows(): void

@@ -1,5 +1,4 @@
 <?php
-
 namespace Test;
 
 use PHPUnit\Framework\TestCase;
@@ -8,41 +7,76 @@ use Repository\TodoRepository;
 
 class TodoServiceTest extends TestCase
 {
-    public function testCreateTodoThrowsOnEmptyTitle(): void
+    public function testCreateThrowsOnEmptyTitle(): void
     {
         $repo = $this->createMock(TodoRepository::class);
         $service = new TodoService($repo);
 
         $this->expectException(\InvalidArgumentException::class);
-        $service->createTodo('   ');
+        $service->create(['title' => '   ']);
     }
 
-    public function testCreateTodoReturnsIdAndCallsRepo(): void
+    public function testCreateReturnsIdAndCallsRepo(): void
     {
         $repo = $this->createMock(TodoRepository::class);
         $repo->expects($this->once())
-             ->method('add')
-             ->with('Buy milk')
-             ->willReturn(42);
+            ->method('add')
+            ->with('Buy milk')
+            ->willReturn(42);
 
         $service = new TodoService($repo);
-        $id = $service->createTodo('  Buy milk  ');
+        $id = $service->create(['title' => '  Buy milk  ']);
 
         $this->assertSame(42, $id);
     }
 
-    public function testCompleteTodoValidatesIdAndDelegates(): void
+    public function testCompleteTodoDelegatesToRepo(): void
     {
         $repo = $this->createMock(TodoRepository::class);
         $repo->expects($this->once())
-             ->method('markAsDone')
-             ->with(3)
-             ->willReturn(true);
+            ->method('markAsDone')
+            ->with(3)
+            ->willReturn(true);
 
         $service = new TodoService($repo);
         $result = $service->completeTodo(3);
 
         $this->assertTrue($result);
+    }
+
+    public function testUpdateTodoValidatesAndCallsRepo(): void
+    {
+        $repo = $this->createMock(TodoRepository::class);
+        $repo->expects($this->once())
+            ->method('updateTitle')
+            ->with(5, 'Updated Task')
+            ->willReturn(true);
+
+        $service = new TodoService($repo);
+        $result = $service->updateTodo(5, ['title' => 'Updated Task']);
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateTodoThrowsIfTitleEmpty(): void
+    {
+        $repo = $this->createMock(TodoRepository::class);
+        $service = new TodoService($repo);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $service->updateTodo(1, ['title' => '   ']);
+    }
+
+    public function testDeleteTodoDelegatesToRepo(): void
+    {
+        $repo = $this->createMock(TodoRepository::class);
+        $repo->expects($this->once())
+            ->method('remove')
+            ->with(7)
+            ->willReturn(true);
+
+        $service = new TodoService($repo);
+        $this->assertTrue($service->deleteTodo(7));
     }
 
     public function testGetAllTodosDelegatesToRepo(): void
@@ -54,11 +88,10 @@ class TodoServiceTest extends TestCase
 
         $repo = $this->createMock(TodoRepository::class);
         $repo->expects($this->once())
-             ->method('getAll')
-             ->willReturn($expected);
+            ->method('getAll')
+            ->willReturn($expected);
 
         $service = new TodoService($repo);
         $this->assertSame($expected, $service->getAllTodos());
     }
 }
-
