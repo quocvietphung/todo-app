@@ -7,14 +7,6 @@ use PDO;
 use PDOException;
 use InvalidArgumentException;
 
-/**
- * 🧱 AbstractRepository
- * ------------------------------
- * Lớp cha cho tất cả Repository trong hệ thống.
- * - Chỉ xử lý CRUD (Data Access Layer)
- * - Không chứa logic nghiệp vụ (business logic)
- * - Nhận PDO từ Database (đã inject qua Container)
- */
 abstract class AbstractRepository implements RepositoryInterface
 {
     protected PDO $pdo;
@@ -23,12 +15,8 @@ abstract class AbstractRepository implements RepositoryInterface
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->initTable(); // xác định bảng con
+        $this->initTable();
     }
-
-    // ============================================================
-    // 📖 ĐỌC DỮ LIỆU
-    // ============================================================
 
     public function findAll(): array
     {
@@ -54,10 +42,6 @@ abstract class AbstractRepository implements RepositoryInterface
             throw new \RuntimeException("Failed to find record with ID {$id}: " . $e->getMessage());
         }
     }
-
-    // ============================================================
-    // ✏️ GHI DỮ LIỆU
-    // ============================================================
 
     public function create(array $data): int
     {
@@ -113,10 +97,6 @@ abstract class AbstractRepository implements RepositoryInterface
             throw new \RuntimeException("Failed to delete ID {$id} in {$this->table}: " . $e->getMessage());
         }
     }
-
-    // ============================================================
-    // ⚙️ HÀM TRỪU TƯỢNG
-    // ============================================================
 
     abstract protected function initTable(): void;
 }
