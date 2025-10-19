@@ -4,34 +4,36 @@ namespace Core;
 use PDO;
 
 /**
- * Klasse: Database
- * Verwaltet eine einzelne SQLite-Datenbankverbindung (Singleton).
- * Diese Klasse stellt sicher, dass in der gesamten Anwendung
- * nur eine einzige PDO-Verbindung erstellt und wiederverwendet wird.
- * Sie dient als zentrale Datenquelle für alle Repository-Klassen.
+ * Class: Database
+ * ---------------------------------------------------------
+ * Manages a single SQLite database connection (Singleton).
  *
- * Hauptfunktionen:
- * - Erzeugt automatisch eine SQLite-Verbindung (Dateibasierte DB)
- * - Aktiviert den Exception-Modus für PDO-Fehlerbehandlung
- * - Verhindert Mehrfachinstanziierung durch privaten Konstruktor
+ * This class ensures that only one PDO connection is created
+ * and reused throughout the entire application.
+ * It serves as the central data source for all repository classes.
+ *
+ * Responsibilities:
+ * - Automatically creates a file-based SQLite connection.
+ * - Enables PDO exception mode for error handling.
+ * - Prevents multiple instantiations through a private constructor.
  *
  * @package Core
  */
 class Database
 {
     /**
-     * @var PDO|null  Singleton-Instanz der PDO-Verbindung
+     * @var PDO|null  Singleton instance of the PDO connection.
      */
     private static ?PDO $connection = null;
 
     /**
-     * Gibt eine Singleton-Instanz der PDO-Verbindung zurück.
+     * Returns the singleton instance of the PDO connection.
      *
-     * Wenn noch keine Verbindung existiert, wird automatisch eine neue
-     * SQLite-Datenbank im Verzeichnis `/db/todos.db` erstellt.
+     * If no connection exists, a new SQLite database file
+     * will be automatically created in `/db/todos.db`.
      *
-     * @return PDO  Eine aktive SQLite-Datenbankverbindung
-     * @throws \PDOException  Wenn der Verbindungsaufbau fehlschlägt
+     * @return PDO  An active SQLite PDO connection.
+     * @throws \PDOException  If establishing the connection fails.
      */
     public static function getConnection(): PDO
     {
@@ -39,10 +41,10 @@ class Database
             $path = __DIR__ . '/../db/todos.db';
             $dsn = 'sqlite:' . $path;
 
-            // Verbindung zur SQLite-Datei herstellen
+            // Establish a connection to the SQLite database file
             self::$connection = new PDO($dsn);
 
-            // Fehlerbehandlung: PDO wirft Exceptions bei Fehlern
+            // Configure PDO to throw exceptions on errors
             self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
 
@@ -50,9 +52,9 @@ class Database
     }
 
     /**
-     * Privater Konstruktor verhindert direkte Instanziierung.
+     * Private constructor prevents direct instantiation.
      *
-     * Die Klasse wird ausschließlich über {@see Database::getConnection()} verwendet.
+     * The class should only be accessed through {@see Database::getConnection()}.
      */
     private function __construct() {}
 }
