@@ -4,21 +4,35 @@ namespace Service;
 use Repository\TodoRepository;
 
 /**
- * ✅ TodoService
- * ------------------------------
- * Tầng nghiệp vụ cho Todo — kế thừa AbstractService
- * - Chứa logic đặc thù cho Todo (validate, markAsDone)
- * - Không truy cập DB trực tiếp, chỉ dùng Repository
+ * Class TodoService
+ * ---------------------------------------------------------
+ * Service layer responsible for business logic related to "Todo" entities.
+ *
+ * Responsibilities:
+ * - Acts as an intermediary between the Controller and the Repository layer.
+ * - Implements domain-specific rules such as validation and completion logic.
+ * - Never interacts with the database directly — only via the repository.
+ *
+ * Inherits common CRUD methods from {@see AbstractService}.
+ *
+ * @package Service
  */
 class TodoService extends AbstractService
 {
+    /**
+     * Initializes the TodoService with its corresponding repository.
+     *
+     * @param TodoRepository $repo The repository instance responsible for data access.
+     */
     public function __construct(TodoRepository $repo)
     {
         parent::__construct($repo);
     }
 
     /**
-     * 🟢 Alias cho controller cũ.
+     * Returns all todos (for backward compatibility with older controllers).
+     *
+     * @return array A list of all todo records.
      */
     public function getAllTodos(): array
     {
@@ -26,7 +40,12 @@ class TodoService extends AbstractService
     }
 
     /**
-     * 🟢 Tạo Todo với validate riêng.
+     * Creates a new todo item after validating input data.
+     *
+     * @param array $data The input data containing at least the 'title' field.
+     * @return int The ID of the newly created todo record.
+     *
+     * @throws \InvalidArgumentException If the 'title' field is empty.
      */
     public function create(array $data): int
     {
@@ -35,12 +54,17 @@ class TodoService extends AbstractService
             throw new \InvalidArgumentException('Title cannot be empty');
         }
 
-        // Gọi repository cụ thể (có thể khác so với create() gốc)
+        // Delegate data persistence to the repository
         return $this->repo->add($title);
     }
 
     /**
-     * 🟢 Đánh dấu hoàn thành todo.
+     * Marks a specific todo item as completed.
+     *
+     * @param int $id The ID of the todo to be marked as done.
+     * @return bool True if the update was successful, false otherwise.
+     *
+     * @throws \InvalidArgumentException If the provided ID is invalid.
      */
     public function completeTodo(int $id): bool
     {
