@@ -5,16 +5,36 @@ import AddTodoForm from './components/AddTodoForm';
 import TodoList from './components/TodoList';
 import { Todo } from './types/todo';
 
+/**
+ * Page Component: Home
+ * ---------------------------------------------------------
+ * The main entry point of the Todo application.
+ *
+ * Responsibilities:
+ * - Fetches and displays all todo items from the backend.
+ * - Handles adding new todos and marking them as completed.
+ * - Manages loading and error states for better UX.
+ *
+ * This component serves as the parent container for:
+ * - {@link AddTodoForm}: handles user input for new todos.
+ * - {@link TodoList}: displays the list of existing todos.
+ *
+ * @returns JSX.Element
+ */
 export default function Home() {
     const [todos, setTodos] = useState<Todo[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // 🧩 Gọi API qua Next.js route
+    /**
+     * Fetches all todos from the backend API.
+     * Called initially on component mount and after any updates.
+     */
     const fetchTodos = async () => {
         try {
             const res = await fetch('/api/todos');
             const data = await res.json();
+
             if (data.success) {
                 setTodos(data.todos);
                 setError(null);
@@ -29,11 +49,15 @@ export default function Home() {
         }
     };
 
+    // Automatically load todos on first render
     useEffect(() => {
         fetchTodos();
     }, []);
 
-    // ➕ Thêm todo mới
+    /**
+     * Adds a new todo by sending a POST request to the API.
+     * @param title The title of the new todo item.
+     */
     const handleAddTodo = async (title: string) => {
         try {
             const res = await fetch('/api/todos', {
@@ -42,6 +66,7 @@ export default function Home() {
                 body: JSON.stringify({ action: 'add', title }),
             });
             const data = await res.json();
+
             if (data.success) {
                 await fetchTodos();
             } else {
@@ -53,7 +78,10 @@ export default function Home() {
         }
     };
 
-    // ✅ Đánh dấu hoàn thành
+    /**
+     * Marks a todo as completed by sending an update to the backend.
+     * @param id The ID of the todo item to mark as done.
+     */
     const handleToggleDone = async (id: number) => {
         try {
             const res = await fetch('/api/todos', {
@@ -62,6 +90,7 @@ export default function Home() {
                 body: JSON.stringify({ action: 'done', id }),
             });
             const data = await res.json();
+
             if (data.success) {
                 await fetchTodos();
             } else {
@@ -84,14 +113,17 @@ export default function Home() {
                         ARTEMEON Coding Challenge
                     </p>
 
+                    {/* Error message */}
                     {error && (
                         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
                             {error}
                         </div>
                     )}
 
+                    {/* Add new todo form */}
                     <AddTodoForm onAdd={handleAddTodo} />
 
+                    {/* Todo list or loading state */}
                     {isLoading ? (
                         <div className="text-center py-8 text-gray-500">
                             Loading todos...
