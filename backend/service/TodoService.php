@@ -10,7 +10,7 @@ use Repository\TodoRepository;
  *
  * Responsibilities:
  * - Acts as an intermediary between the Controller and the Repository layer.
- * - Implements domain-specific rules such as validation and completion logic.
+ * - Implements domain-specific rules such as validation, updating, and deletion logic.
  * - Never interacts with the database directly — only via the repository.
  *
  * Inherits common CRUD methods from {@see AbstractService}.
@@ -54,8 +54,30 @@ class TodoService extends AbstractService
             throw new \InvalidArgumentException('Title cannot be empty');
         }
 
-        // Delegate data persistence to the repository
         return $this->repo->add($title);
+    }
+
+    /**
+     * Updates the title of an existing todo.
+     *
+     * @param int $id The ID of the todo to update.
+     * @param array $data The input data containing the new 'title'.
+     * @return bool True if the update was successful, false otherwise.
+     *
+     * @throws \InvalidArgumentException If the ID or title is invalid.
+     */
+    public function updateTodo(int $id, array $data): bool
+    {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException('Invalid ID');
+        }
+
+        $title = trim($data['title'] ?? '');
+        if ($title === '') {
+            throw new \InvalidArgumentException('Title cannot be empty');
+        }
+
+        return $this->repo->updateTitle($id, $title);
     }
 
     /**
@@ -73,5 +95,22 @@ class TodoService extends AbstractService
         }
 
         return $this->repo->markAsDone($id);
+    }
+
+    /**
+     * Soft deletes a todo item by setting the deleted_at timestamp.
+     *
+     * @param int $id The ID of the todo to delete.
+     * @return bool True if the record was marked as deleted.
+     *
+     * @throws \InvalidArgumentException If the ID is invalid.
+     */
+    public function deleteTodo(int $id): bool
+    {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException('Invalid ID');
+        }
+
+        return $this->repo->remove($id);
     }
 }
