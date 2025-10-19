@@ -26,7 +26,7 @@ use Controller\TodoController;
  * Allow cross-origin requests and enforce JSON communication.
  */
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
@@ -56,7 +56,9 @@ $todoController = $container->get(TodoController::class);
 $router = new Router();
 
 /**
+ * ---------------------------------------------------------
  * GET /api/todos
+ * ---------------------------------------------------------
  * Fetches all todo items.
  */
 $router->add('/api/todos', fn() => Response::json([
@@ -65,8 +67,14 @@ $router->add('/api/todos', fn() => Response::json([
 ]), 'GET');
 
 /**
+ * ---------------------------------------------------------
  * POST /api/todos/add
+ * ---------------------------------------------------------
  * Creates a new todo item.
+ * Request Body (JSON):
+ * {
+ *   "title": "Buy milk"
+ * }
  */
 $router->add('/api/todos/add', function() use ($todoController) {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -75,8 +83,14 @@ $router->add('/api/todos/add', function() use ($todoController) {
 }, 'POST');
 
 /**
+ * ---------------------------------------------------------
  * POST /api/todos/done
+ * ---------------------------------------------------------
  * Marks a todo item as completed.
+ * Request Body (JSON):
+ * {
+ *   "id": 3
+ * }
  */
 $router->add('/api/todos/done', function() use ($todoController) {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -85,6 +99,42 @@ $router->add('/api/todos/done', function() use ($todoController) {
 }, 'POST');
 
 /**
+ * ---------------------------------------------------------
+ * PUT /api/todos/update
+ * ---------------------------------------------------------
+ * Updates the title of an existing todo.
+ * Request Body (JSON):
+ * {
+ *   "id": 3,
+ *   "title": "Updated title"
+ * }
+ */
+$router->add('/api/todos/update', function() use ($todoController) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $ok = $todoController->update((int) $input['id'], $input);
+    return Response::json(['success' => $ok]);
+}, 'PUT');
+
+/**
+ * ---------------------------------------------------------
+ * DELETE /api/todos/delete
+ * ---------------------------------------------------------
+ * Soft deletes a todo (sets deleted_at timestamp).
+ * Request Body (JSON):
+ * {
+ *   "id": 3
+ * }
+ */
+$router->add('/api/todos/delete', function() use ($todoController) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $ok = $todoController->delete((int) $input['id']);
+    return Response::json(['success' => $ok]);
+}, 'DELETE');
+
+/**
+ * ---------------------------------------------------------
+ * ROUTE DISPATCHER
+ * ---------------------------------------------------------
  * Dispatch the incoming request to the appropriate route.
  * If no route matches, a 404 JSON response is returned.
  */
