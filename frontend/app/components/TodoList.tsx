@@ -3,17 +3,46 @@
 import { Todo } from '../types/todo';
 
 interface TodoListProps {
+    /**
+     * The list of todo items to be displayed.
+     */
     todos: Todo[];
+
+    /**
+     * Callback triggered when a todo is marked as completed.
+     * @param id The ID of the todo item to toggle.
+     */
     onToggleDone: (id: number) => Promise<void>;
 }
 
 /**
- * ✅ TodoList Component
- * - Hiển thị danh sách todos
- * - Cho phép toggle “done”
- * - Hiển thị thông báo khi danh sách trống
+ * Component: TodoList
+ * ---------------------------------------------------------
+ * Renders the list of todo items.
+ *
+ * Features:
+ * - Displays each todo with its completion status.
+ * - Allows marking items as completed via checkbox.
+ * - Shows an empty-state message if the list is empty.
+ *
+ * @param {TodoListProps} props - The component props.
+ * @returns JSX.Element
  */
 export default function TodoList({ todos, onToggleDone }: TodoListProps) {
+    /**
+     * Handles toggling of a todo item.
+     * Prevents re-marking items that are already completed.
+     */
+    const handleToggle = async (id: number, completed: boolean) => {
+        if (completed) return;
+        try {
+            await onToggleDone(id);
+        } catch (err) {
+            console.error('Error toggling todo:', err);
+        }
+    };
+
+    // Render empty state when no todos are present
     if (!todos || todos.length === 0) {
         return (
             <div className="text-center py-8 text-gray-500 italic">
@@ -21,15 +50,6 @@ export default function TodoList({ todos, onToggleDone }: TodoListProps) {
             </div>
         );
     }
-
-    const handleToggle = async (id: number, completed: boolean) => {
-        if (completed) return; // Không cho toggle ngược
-        try {
-            await onToggleDone(id);
-        } catch (err) {
-            console.error('Error toggling todo:', err);
-        }
-    };
 
     return (
         <div className="space-y-2" role="list">
@@ -43,6 +63,7 @@ export default function TodoList({ todos, onToggleDone }: TodoListProps) {
                             : 'bg-white border-gray-300 hover:border-blue-300 hover:scale-[1.01]'
                     }`}
                 >
+                    {/* Completion checkbox */}
                     <input
                         type="checkbox"
                         checked={todo.completed}
@@ -52,6 +73,7 @@ export default function TodoList({ todos, onToggleDone }: TodoListProps) {
                         aria-label={`Mark "${todo.title}" as done`}
                     />
 
+                    {/* Todo title text */}
                     <span
                         className={`flex-1 truncate ${
                             todo.completed
@@ -62,8 +84,11 @@ export default function TodoList({ todos, onToggleDone }: TodoListProps) {
             {todo.title}
           </span>
 
+                    {/* Completed tag */}
                     {todo.completed && (
-                        <span className="text-xs text-green-600 font-semibold">✓ Done</span>
+                        <span className="text-xs text-green-600 font-semibold">
+              ✓ Done
+            </span>
                     )}
                 </div>
             ))}
