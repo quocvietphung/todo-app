@@ -1,22 +1,37 @@
 <?php
+/**
+ * Migration Runner Script
+ * ---------------------------------------------------------
+ * This script executes all migration files located in the `/migrations` directory.
+ * It can run migrations (`up`) or roll them back (`down`), depending on the command argument.
+ *
+ * Usage:
+ *   php migrate.php              → runs all migrations (default: up)
+ *   php migrate.php down         → rolls back all migrations
+ *
+ * Dependencies:
+ * - Uses the Core\Container for dependency injection
+ * - Retrieves the PDO connection through the Database service
+ */
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Core\Container;
 use Core\Database;
 
-// ✅ Lấy instance container (Singleton)
+// Initialize the global container (Singleton)
 $container = Container::getInstance();
 
-// ✅ Lấy kết nối PDO thông qua Container (auto inject Database)
+// Retrieve the PDO connection via the Container (auto-injected Database instance)
 $pdo = $container->get(PDO::class);
 
-// 🗂️ Quét tất cả file migration trong thư mục /migrations
+// Scan all migration files in the /migrations directory (excluding interfaces)
 $migrationFiles = array_filter(
     glob(__DIR__ . '/migrations/*.php'),
     fn($f) => stripos($f, 'Interface') === false
 );
 
-// ⚙️ Xác định chế độ chạy (up hoặc down)
+// Determine execution mode: "up" (default) or "down"
 $mode = $argv[1] ?? 'up';
 
 foreach ($migrationFiles as $file) {
@@ -24,20 +39,23 @@ foreach ($migrationFiles as $file) {
     $parts = explode('_', $baseName, 2);
     $className = 'Migrations\\' . ($parts[1] ?? $parts[0]);
 
-    echo "🔍 Checking migration: {$className}\n";
+    echo "Checking migration: {$className}\n";
 
+    // Ensure the migration class exists (autoloaded)
     if (!class_exists($className)) {
-        echo "⚠️  Migration class not found: {$className}\n";
+        echo "Warning: Migration class not found: {$className}\n";
         continue;
     }
 
+    // Instantiate the migration class
     $migration = new $className();
 
+    // Execute migration based on the selected mode
     if ($mode === 'down') {
-        echo "🧹 Rolling back: {$className}\n";
+        echo "Rolling back: {$className}\n";
         $migration->down($pdo);
     } else {
-        echo "🚀 Running: {$className}\n";
+        echo "Running: {$className}\n";
         $migration->up($pdo);
     }
 
@@ -45,5 +63,5 @@ foreach ($migrationFiles as $file) {
 }
 
 echo $mode === 'down'
-    ? "🗑️  Rollback completed.\n"
-    : "🎉 All migrations executed successfully!\n";
+    ? "Rollback completed.\n"
+    : "All migrations executed successfully.\n";
