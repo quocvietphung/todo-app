@@ -5,12 +5,8 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000/api";
 /**
  * API Route: /api/todos
  * ---------------------------------------------------------
- * Proxy layer between Next.js frontend and the PHP backend.
- *
- * Responsibilities:
- * - Forward GET/POST requests to the PHP backend.
- * - Unify API responses into JSON format.
- * - Handle CORS and error resilience for frontend.
+ * Acts as a proxy layer between Next.js frontend and the PHP backend.
+ * Handles CRUD operations: get, add, update, mark done, and delete.
  */
 
 /**
@@ -33,7 +29,7 @@ export async function GET(): Promise<NextResponse> {
 }
 
 /**
- * Handles POST requests for add/done actions.
+ * Handles POST requests for CRUD actions (add, done, update, delete).
  *
  * @param {Request} req - The incoming HTTP request.
  * @returns {Promise<NextResponse>} JSON response from backend.
@@ -42,6 +38,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     try {
         const body = await req.json();
 
+        // ADD
         if (body.action === "add") {
             const res = await fetch(`${BACKEND_URL}/todos/add`, {
                 method: "POST",
@@ -52,8 +49,31 @@ export async function POST(req: Request): Promise<NextResponse> {
             return NextResponse.json(data, { status: 200 });
         }
 
+        // MARK DONE
         if (body.action === "done") {
             const res = await fetch(`${BACKEND_URL}/todos/done`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: body.id }),
+            });
+            const data = await res.json();
+            return NextResponse.json(data, { status: 200 });
+        }
+
+        // UPDATE TITLE
+        if (body.action === "update") {
+            const res = await fetch(`${BACKEND_URL}/todos/update`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: body.id, title: body.title }),
+            });
+            const data = await res.json();
+            return NextResponse.json(data, { status: 200 });
+        }
+
+        // DELETE
+        if (body.action === "delete") {
+            const res = await fetch(`${BACKEND_URL}/todos/delete`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id: body.id }),
