@@ -3,22 +3,38 @@
 import { useRef, useState } from 'react';
 
 interface AddTodoFormProps {
+    /**
+     * Callback triggered when a new todo is submitted.
+     * @param title The title of the todo item to be added.
+     */
     onAdd: (title: string) => Promise<void>;
 }
 
 /**
- * 🧩 AddTodoForm
- * - Cho phép người dùng nhập công việc mới
- * - Gửi callback onAdd(title)
- * - Disabled khi đang gửi request
+ * Component: AddTodoForm
+ * ---------------------------------------------------------
+ * Provides an input form for adding new todo items.
+ *
+ * Features:
+ * - Accepts user input and submits it through the provided `onAdd` callback.
+ * - Disables input and button while submitting.
+ * - Automatically refocuses the input field after successful submission.
+ *
+ * @param {AddTodoFormProps} props - The component props.
+ * @returns JSX.Element
  */
 export default function AddTodoForm({ onAdd }: AddTodoFormProps) {
     const [title, setTitle] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    /**
+     * Handles form submission.
+     * Prevents default page reload and validates input before sending.
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
         const trimmed = title.trim();
         if (!trimmed) return;
 
@@ -26,7 +42,7 @@ export default function AddTodoForm({ onAdd }: AddTodoFormProps) {
         try {
             await onAdd(trimmed);
             setTitle('');
-            inputRef.current?.focus(); // Trả focus lại input
+            inputRef.current?.focus();
         } catch (err) {
             console.error('Error adding todo:', err);
         } finally {
@@ -47,6 +63,7 @@ export default function AddTodoForm({ onAdd }: AddTodoFormProps) {
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:bg-gray-100"
                     disabled={isLoading}
                 />
+
                 <button
                     type="submit"
                     disabled={isLoading || !title.trim()}
@@ -56,7 +73,7 @@ export default function AddTodoForm({ onAdd }: AddTodoFormProps) {
                             : 'bg-blue-500 hover:bg-blue-600'
                     }`}
                 >
-                    {isLoading ? 'Adding…' : 'Add'}
+                    {isLoading ? 'Adding...' : 'Add'}
                 </button>
             </div>
         </form>
