@@ -12,6 +12,14 @@ use Migrations\MigrationInterface;
  * main table used to store todo items in the application.
  * It follows a simple SQLite-compatible SQL definition.
  *
+ * Columns:
+ * - id: Primary key (auto-incremented)
+ * - title: Task title (non-null)
+ * - completed: Completion flag (0 = pending, 1 = done)
+ * - created_at: Creation timestamp
+ * - updated_at: Last modification timestamp
+ * - deleted_at: Soft deletion timestamp (NULL if active)
+ *
  * @package Migrations
  */
 class CreateTodosTable implements MigrationInterface
@@ -31,7 +39,9 @@ class CreateTodosTable implements MigrationInterface
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 completed INTEGER DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                deleted_at DATETIME DEFAULT NULL
             );
         ");
 
