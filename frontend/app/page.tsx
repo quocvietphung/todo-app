@@ -1,36 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {JSX, useEffect, useState} from 'react';
 import AddTodoForm from './components/AddTodoForm';
 import TodoList from './components/TodoList';
 import { Todo } from './types/todo';
 
 /**
- * Page Component: Home
+ * Component: Home
  * ---------------------------------------------------------
- * The main entry point of the Todo application.
+ * The main page of the Todo App.
  *
  * Responsibilities:
- * - Fetches and displays all todo items from the backend.
- * - Handles adding new todos and marking them as completed.
- * - Manages loading and error states for better UX.
+ * - Fetch all todos from the backend via /api/todos.
+ * - Add new todos and mark existing ones as completed.
+ * - Display loading and error states for better UX.
  *
- * This component serves as the parent container for:
- * - {@link AddTodoForm}: handles user input for new todos.
- * - {@link TodoList}: displays the list of existing todos.
+ * Architecture:
+ * - Uses the Next.js App Router (client component).
+ * - Delegates subcomponents:
+ *   - {@link AddTodoForm} — handles user input.
+ *   - {@link TodoList} — displays the todo list.
  *
- * @returns JSX.Element
+ * @returns {JSX.Element} The rendered Todo App page.
  */
-export default function Home() {
+export default function Home(): JSX.Element {
     const [todos, setTodos] = useState<Todo[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     /**
      * Fetches all todos from the backend API.
-     * Called initially on component mount and after any updates.
+     * Called on component mount and after any updates.
+     *
+     * @async
      */
-    const fetchTodos = async () => {
+    const fetchTodos = async (): Promise<void> => {
         try {
             const res = await fetch('/api/todos');
             const data = await res.json();
@@ -49,16 +53,18 @@ export default function Home() {
         }
     };
 
-    // Automatically load todos on first render
+    // Initial load
     useEffect(() => {
         fetchTodos();
     }, []);
 
     /**
-     * Adds a new todo by sending a POST request to the API.
-     * @param title The title of the new todo item.
+     * Adds a new todo.
+     *
+     * @param {string} title - The title of the new todo.
+     * @async
      */
-    const handleAddTodo = async (title: string) => {
+    const handleAddTodo = async (title: string): Promise<void> => {
         try {
             const res = await fetch('/api/todos', {
                 method: 'POST',
@@ -79,10 +85,12 @@ export default function Home() {
     };
 
     /**
-     * Marks a todo as completed by sending an update to the backend.
-     * @param id The ID of the todo item to mark as done.
+     * Marks a todo as completed.
+     *
+     * @param {number} id - The ID of the todo to mark as done.
+     * @async
      */
-    const handleToggleDone = async (id: number) => {
+    const handleToggleDone = async (id: number): Promise<void> => {
         try {
             const res = await fetch('/api/todos', {
                 method: 'POST',
@@ -113,17 +121,14 @@ export default function Home() {
                         ARTEMEON Coding Challenge
                     </p>
 
-                    {/* Error message */}
                     {error && (
                         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
                             {error}
                         </div>
                     )}
 
-                    {/* Add new todo form */}
                     <AddTodoForm onAdd={handleAddTodo} />
 
-                    {/* Todo list or loading state */}
                     {isLoading ? (
                         <div className="text-center py-8 text-gray-500">
                             Loading todos...
