@@ -1,119 +1,175 @@
 # Todo-App
-Full-stack Todo App (Next.js frontend + PHP backend with SQLite)
-
-## Overview
-This is a full-stack Todo application used for an ARTEMEON coding challenge — the frontend is built with Next.js (TypeScript) and the backend is plain PHP using SQLite for persistence.
-
-## Key points
-- Frontend: Next.js (App Router) + TypeScript
-- Backend: Plain PHP, OOP structure Controller → Service → Repository → Database (PDO)
-- Database: SQLite (database file stored in `backend/db/`)
-- Migrations: `backend/migrate.php` to apply or rollback migrations
+Full-stack Todo App — **Next.js frontend + PHP backend with SQLite**
 
 ---
 
-## Project structure (summary)
+## Overview
+This project is a **full-stack Todo application** developed as part of the **ARTEMEON Coding Challenge**.  
 
-- backend/
-  - public/index.php         — HTTP entrypoint (API routes) (uses `Core\Router` to map requests)
-  - migrate.php              — migration runner script
-  - migrations/              — migration files (e.g. CreateTodosTable.php)
-  - db/                      — contains SQLite file (e.g. todos.db)
-  - controller/, core/, repository/, service/, tests/ — backend source code
-  - composer.json, vendor/   — PHP dependencies
+It demonstrates the ability to design a lightweight, framework-free backend in PHP, combined with a modern frontend using **Next.js (TypeScript)**.
 
-  Design patterns:
-  - Layered architecture: Controller → Service → Repository → Database.
-    - Controller: receives HTTP requests, handles input/response, and delegates business logic to a Service.
-    - Service: contains application/business logic and orchestrates one or more Repositories.
-    - Repository: data-access layer, performs CRUD operations using a PDO connection.
-    - Database: a simple SQLite-backed PDO connection located under `backend/core/Database.php`.
-  - Dependency Injection: A small DI container (`backend/core/Container.php`) automatically creates objects and injects their constructor dependencies. When a Controller is requested, the container builds the Controller, its Service, and Repository dependencies, and provides a shared PDO connection for database access (Controller → Service → Repository → PDO). This makes the code modular and easier to test.
+The main goal was to show clear, maintainable architecture and clean code — not UI design perfection.
 
-- frontend/
-  - app/                     — Next.js app (pages, components)
-  - package.json             — frontend dependencies and scripts
+---
+
+## Key points
+- **Frontend:** Next.js (App Router) + TypeScript
+- **Backend:** Plain PHP with layered OOP architecture  
+  → **Controller → Service → Repository → Database (PDO)**
+- **Database:** SQLite (`backend/db/todos.db`)
+- **Migrations:** `backend/migrate.php` to apply or rollback schema changes
+- **No frameworks:** implemented from scratch (no Laravel, no Symfony)
+
+---
+
+## Architecture
+
+### Layered Design
+Each layer has a single responsibility:
+
+| Layer | Responsibility |
+|-------|----------------|
+| **Controller** | Receives HTTP requests, validates input, and calls the service layer. |
+| **Service** | Contains business logic, validation, and calls the repository. |
+| **Repository** | Performs all CRUD database operations using PDO. |
+| **Database** | SQLite connection, configured once and shared. |
+
+---
+
+### Dependency Injection
+The backend uses a **custom singleton Dependency Injection container** located in  
+`backend/core/Container.php`.
+
+When a controller is requested:
+1. The container inspects its constructor using **Reflection**.
+2. It automatically resolves and instantiates dependencies (Service → Repository → PDO).
+3. The shared **PDO** instance ensures one database connection across the app.
+
+This structure makes the app:
+- ✅ **Modular** (each layer independent)
+- ✅ **Easily testable** (dependencies can be mocked)
+- ✅ **Simple to extend** (add more controllers or services with no config)
+
+Example flow:
+```
+TodoController → TodoService → TodoRepository → PDO (Database)
+```
+
+---
+
+## Project structure
+
+```
+todo-app/
+│
+├── backend/
+│   ├── public/index.php         # HTTP entry point (routes + CORS)
+│   ├── migrate.php              # Migration runner
+│   ├── migrations/              # Migration files (CreateTodosTable.php)
+│   ├── controller/              # Controllers (TodoController.php)
+│   ├── service/                 # Business logic layer
+│   ├── repository/              # Data access (PDO)
+│   ├── core/                    # Container, Router, Database, Response
+│   ├── db/                      # SQLite database file (todos.db)
+│   └── composer.json            # Dependencies
+│
+└── frontend/
+    ├── app/                     # Next.js App Router structure
+    ├── components/              # Reusable UI components
+    ├── package.json             # Frontend dependencies
+    └── tsconfig.json
+```
 
 ---
 
 ## Backend — API Endpoints
 
-| Method | Endpoint         | Description                      | Request Body               | Response Example                          |
-|--------|------------------|--------------------------------|----------------------------|-------------------------------------------|
-| GET    | /api/todos       | Retrieve all todos              | None                       | `{ "success": true, "todos": [ ... ] }`  |
-| POST   | /api/todos/add   | Create a new todo               | `{ "title": "Todo text" }` | `{ "success": true, "id": 1 }`            |
-| POST/PUT | /api/todos/done  | Mark a todo item as completed   | `{ "id": 1 }`              | `{ "success": true }`                      |
-| PUT    | /api/todos/update | Update an existing todo         | `{ "id": 1, "title": "New title" }` | `{ "success": true }`                |
-| DELETE | /api/todos/delete | Delete a todo item              | `{ "id": 1 }`              | `{ "success": true }`                      |
+| Method | Endpoint | Description | Request Body | Response Example |
+|:-------|:----------|:-------------|:--------------|:------------------|
+| **GET** | `/api/todos` | Retrieve all todos | _None_ | `{ "success": true, "todos": [ { "id": 1, "title": "Buy milk", "completed": 0 } ] }` |
+| **POST** | `/api/todos/add` | Create a new todo | `{ "title": "Buy groceries" }` | `{ "success": true, "id": 3 }` |
+| **POST** | `/api/todos/done` | Mark a todo as completed | `{ "id": 3 }` | `{ "success": true }` |
+| **PUT** | `/api/todos/update` | Update a todo’s title | `{ "id": 3, "title": "Updated text" }` | `{ "success": true }` |
+| **DELETE** | `/api/todos/delete` | Permanently delete a todo | `{ "id": 3 }` | `{ "success": true }` |
+
+✅ All endpoints return JSON responses and include full **CORS** headers.  
+✅ `/api/todos/update` and `/api/todos/delete` now perform **real database updates and deletions**.
 
 ---
 
 ## Database & Migrations
 
-The backend uses SQLite for data persistence, with the database file located in `backend/db/todos.db`. The primary table is `todos`, which stores todo items with fields for id, title, completion status, and creation timestamp.
+The backend uses **SQLite** for data storage.  
+Main table: `todos`
 
-To manage database schema changes, the project includes a migration system. Migration files reside in `backend/migrations/` and define `up` and `down` methods to apply or rollback changes respectively.
+| Column | Type | Description |
+|---------|------|-------------|
+| `id` | INTEGER (PK) | Auto-increment primary key |
+| `title` | TEXT | Todo title |
+| `completed` | INTEGER | 0 = not done, 1 = done |
+| `created_at` | DATETIME | Timestamp (default: current) |
+| `updated_at` | DATETIME | Auto-updated on changes |
 
-The migration runner script `backend/migrate.php` loads all migration classes (excluding interfaces) and executes their `up` or `down` methods depending on the command-line argument. Running `php migrate.php` applies all migrations (creating tables, indexes, etc.), while `php migrate.php down` rolls back the latest changes.
+Migration example (`CreateTodosTable.php`):
+```php
+public function up(\PDO $pdo): void {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS todos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            completed INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    ");
+}
+```
 
-This structured approach ensures database schema consistency and easy version control of schema changes.
+Run migrations:
+```bash
+cd backend
+php migrate.php
+```
 
 ---
 
 ## Run backend (development)
-1. Install PHP dependencies (if needed):
 
 ```bash
 cd backend
 composer install
-```
-
-2. Create/migrate the database:
-
-```bash
 php migrate.php
+php -S localhost:8000 -t public
 ```
 
-3. Start the PHP built-in server (document root = `backend/public`):
-
-```bash
-# from project root (or cd into backend)
-php -S localhost:8000 -t backend/public
-```
-
-The API will be available at: http://localhost:8000
-- Example: http://localhost:8000/api/todos
+✅ Server runs at [http://localhost:8000](http://localhost:8000)  
+Example: `http://localhost:8000/api/todos`
 
 ---
 
 ## Run frontend (development)
 
-1. Install Node dependencies:
-
 ```bash
 cd frontend
 npm install
-```
-
-2. Start the dev server:
-
-```bash
 npm run dev
 ```
 
-The frontend runs by default at http://localhost:3000 and communicates with the backend using the endpoints above. If the backend runs on `localhost:8000`, the frontend can call `http://localhost:8000/api/todos`.
+Frontend runs at [http://localhost:3000](http://localhost:3000)  
+and communicates with the backend via REST endpoints.
 
 ---
 
 ## Testing (PHPUnit)
-If PHPUnit is installed via Composer (the `vendor/` directory), you can run the backend unit tests like this:
 
 ```bash
 cd backend
 ./vendor/bin/phpunit -c phpunit.xml
 ```
 
+All tests mock dependencies via the DI container for isolated unit testing.
+
 ---
 
 ## License
-MIT
+MIT © Phùng Quốc Việt
