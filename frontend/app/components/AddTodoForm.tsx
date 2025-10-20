@@ -10,19 +10,6 @@ interface AddTodoFormProps {
     onAdd: (title: string) => Promise<void>;
 }
 
-/**
- * Component: AddTodoForm
- * ---------------------------------------------------------
- * Provides an input form for adding new todo items.
- *
- * Features:
- * - Accepts user input and submits it through the provided `onAdd` callback.
- * - Disables input and button while submitting.
- * - Automatically refocuses the input field after successful submission.
- *
- * @param {AddTodoFormProps} props - The component props.
- * @returns JSX.Element
- */
 export default function AddTodoForm({ onAdd }: AddTodoFormProps) {
     const [title, setTitle] = useState('');
     const [isLoading, setIsLoading] = useState(false);
