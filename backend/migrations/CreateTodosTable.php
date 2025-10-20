@@ -35,17 +35,16 @@ class CreateTodosTable implements MigrationInterface
         echo "Migrating: CreateTodosTable...\n";
 
         $pdo->exec("
-            CREATE TABLE IF NOT EXISTS todos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                completed INTEGER DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                deleted_at DATETIME DEFAULT NULL
-            );
-        ");
+        CREATE TABLE IF NOT EXISTS todos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            completed INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    ");
 
-        echo "Table 'todos' created successfully.\n";
+        echo "Table 'todos' created successfully (no soft delete).\n";
     }
 
     /**

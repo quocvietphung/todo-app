@@ -10,9 +10,13 @@ use PDO;
  * Repository class responsible for all database operations
  * related to the "todos" table.
  *
- * This class extends AbstractRepository to inherit generic CRUD
- * behavior and adds domain-specific methods for Todo operations
- * such as marking items as done, updating titles, or soft deleting.
+ * Responsibilities:
+ * - Encapsulates all SQL queries for the todos table.
+ * - Handles CRUD operations via prepared statements.
+ * - Supports hard delete (records are permanently removed).
+ *
+ * Architecture:
+ * Controller → Service → Repository → Database (PDO)
  *
  * @package Repository
  */
@@ -40,13 +44,16 @@ class TodoRepository extends AbstractRepository
     }
 
     /**
-     * Retrieves all non-deleted todos from the database.
+     * Retrieves all todos from the database.
      *
      * @return array List of todos (each as associative array).
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query("SELECT * FROM {$this->table} WHERE deleted_at IS NULL ORDER BY id DESC");
+        $stmt = $this->pdo->query("
+            SELECT * FROM {$this->table}
+            ORDER BY id DESC
+        ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -60,8 +67,9 @@ class TodoRepository extends AbstractRepository
     {
         $stmt = $this->pdo->prepare("
             UPDATE {$this->table}
-            SET completed = 1, updated_at = CURRENT_TIMESTAMP
-            WHERE id = :id AND deleted_at IS NULL
+            SET completed = 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id
         ");
         $stmt->execute(['id' => $id]);
         return $stmt->rowCount() > 0;
@@ -78,25 +86,26 @@ class TodoRepository extends AbstractRepository
     {
         $stmt = $this->pdo->prepare("
             UPDATE {$this->table}
-            SET title = :title, updated_at = CURRENT_TIMESTAMP
-            WHERE id = :id AND deleted_at IS NULL
+            SET title = :title,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id
         ");
         $stmt->execute(['id' => $id, 'title' => $title]);
         return $stmt->rowCount() > 0;
     }
 
     /**
-     * Soft deletes a todo item by setting deleted_at timestamp.
+     * Permanently deletes a todo item from the database.
+     * (Hard delete — removes the record completely)
      *
      * @param int $id The ID of the todo to delete.
-     * @return bool True if the record was marked as deleted.
+     * @return bool True if the record was successfully deleted.
      */
     public function remove(int $id): bool
     {
         $stmt = $this->pdo->prepare("
-            UPDATE {$this->table}
-            SET deleted_at = CURRENT_TIMESTAMP
-            WHERE id = :id AND deleted_at IS NULL
+            DELETE FROM {$this->table}
+            WHERE id = :id
         ");
         $stmt->execute(['id' => $id]);
         return $stmt->rowCount() > 0;
