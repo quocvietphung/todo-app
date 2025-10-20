@@ -162,12 +162,37 @@ and communicates with the backend via REST endpoints.
 
 ## Testing (PHPUnit)
 
+Run backend unit tests:
+
 ```bash
 cd backend
-./vendor/bin/phpunit -c phpunit.xml
+composer install
+composer run test
 ```
 
-All tests mock dependencies via the DI container for isolated unit testing.
+Tests use the DI container so dependencies are mocked for isolated unit tests.
+
+---
+
+## Coverage
+
+Generate an HTML coverage report (writes to `backend/coverage-report/`):
+
+```bash
+cd backend
+composer install
+composer run coverage
+# then open the report
+open backend/coverage-report/index.html
+```
+
+Coverage requires a coverage driver (e.g., Xdebug). If Xdebug is not enabled you can run:
+
+```bash
+php -d xdebug.mode=coverage ./vendor/bin/phpunit -c phpunit.coverage.xml --coverage-html coverage-report
+```
+
+To run tests without coverage use `composer run test` (from `backend/`).
 
 ---
 
