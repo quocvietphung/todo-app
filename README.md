@@ -15,12 +15,27 @@ This is a full-stack Todo application used for an ARTEMEON coding challenge — 
 ## Project structure (summary)
 
 - backend/
-  - public/index.php         — HTTP entrypoint (API routes)
+  - public/index.php         — HTTP entrypoint (API routes) (uses `Core\Router` to map requests)
   - migrate.php              — migration runner script
   - migrations/              — migration files (e.g. CreateTodosTable.php)
   - db/                      — contains SQLite file (e.g. todos.db)
   - controller/, core/, repository/, service/, tests/ — backend source code
   - composer.json, vendor/   — PHP dependencies
+
+  Design & patterns (brief):
+  - Layered architecture: Controller → Service → Repository → Database.
+    - Controller: receives HTTP requests, handles input/response, and delegates business logic to a Service.
+    - Service: contains application/business logic and orchestrates one or more Repositories.
+    - Repository: data-access layer, performs CRUD operations using a PDO connection.
+    - Database: a simple SQLite-backed PDO connection located under `backend/core/Database.php`.
+  - Dependency Injection: a lightweight DI container (`backend/core/Container.php`) is used to automatically
+    resolve and inject class dependencies via PHP Reflection. Typical flow:
+    1. The Router calls a Controller handler.
+    2. Controller declares a Service in its constructor and the Container constructs/injects it.
+    3. Service declares a Repository in its constructor and the Container injects it.
+    4. Repository declares `\PDO` in its constructor and the Container injects the shared SQLite connection
+       from `Database::getConnection()`.
+    This keeps classes small, testable, and easy to mock in unit tests.
 
 - frontend/
   - app/                     — Next.js app (pages, components)
