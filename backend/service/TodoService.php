@@ -5,7 +5,6 @@ use Repository\TodoRepository;
 
 /**
  * Class TodoService
- * ---------------------------------------------------------
  * Service layer responsible for business logic related to "Todo" entities.
  *
  * Responsibilities:

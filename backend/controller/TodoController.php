@@ -5,7 +5,6 @@ use Service\TodoService;
 
 /**
  * Class TodoController
- * ---------------------------------------------------------
  * Controller responsible for handling HTTP requests related to todos.
  * It delegates all business logic to {@see TodoService}.
  *
