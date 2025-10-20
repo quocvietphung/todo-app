@@ -19,11 +19,11 @@ interface TodoListProps {
 }
 
 /**
- * Component: TodoList
- * ---------------------------------------------------------
- * - Hiển thị danh sách todos.
- * - Cho phép đánh dấu hoàn thành, chỉnh sửa, xoá.
- * - Dùng ShadCN <AlertDialog> để confirm xoá (thay confirm()).
+ * TodoList Component
+ * ----------------------------
+ * - Show todo list
+ * - Allow mark as done, edit, delete
+ * - Use ShadCN AlertDialog for delete confirmation
  */
 export default function TodoList({
                                      todos,
@@ -31,7 +31,7 @@ export default function TodoList({
                                      onUpdate,
                                      onDelete,
                                  }: TodoListProps) {
-    /** Toggle todo */
+    /** Mark todo as done */
     const handleToggle = async (id: number, completed: boolean) => {
         if (completed) return;
         try {
@@ -41,7 +41,7 @@ export default function TodoList({
         }
     };
 
-    /** Edit todo */
+    /** Edit todo title */
     const handleEdit = async (id: number, currentTitle: string) => {
         const newTitle = prompt('Edit todo title:', currentTitle);
         if (!newTitle || newTitle.trim() === '' || newTitle === currentTitle) return;
@@ -52,6 +52,7 @@ export default function TodoList({
         }
     };
 
+    /** Empty list message */
     if (!todos || todos.length === 0) {
         return (
             <div className="text-center py-8 text-gray-500 italic">
@@ -94,8 +95,9 @@ export default function TodoList({
             </span>
                     </div>
 
-                    {/* Buttons */}
+                    {/* Action buttons */}
                     <div className="flex gap-3 text-sm">
+                        {/* Edit button (only if not completed) */}
                         {!todo.completed && (
                             <button
                                 onClick={() => handleEdit(todo.id, todo.title)}
@@ -105,7 +107,7 @@ export default function TodoList({
                             </button>
                         )}
 
-                        {/* ✅ ShadCN AlertDialog cho Delete */}
+                        {/* Delete confirmation dialog */}
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <button className="text-red-500 hover:underline">Delete</button>
