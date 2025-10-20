@@ -64,7 +64,6 @@ export default function Home(): JSX.Element {
 
     /** Delete todo */
     const handleDeleteTodo = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this todo?')) return;
         await fetch('/api/todos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
