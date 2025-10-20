@@ -1,4 +1,4 @@
-# todo-app
+# Todo-App
 Full-stack Todo App (Next.js frontend + PHP backend with SQLite)
 
 ## Overview
