@@ -63,7 +63,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         // UPDATE TITLE
         if (body.action === "update") {
             const res = await fetch(`${BACKEND_URL}/todos/update`, {
-                method: "POST",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id: body.id, title: body.title }),
             });
@@ -74,7 +74,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         // DELETE
         if (body.action === "delete") {
             const res = await fetch(`${BACKEND_URL}/todos/delete`, {
-                method: "POST",
+                method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id: body.id }),
             });
