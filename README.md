@@ -135,10 +135,24 @@ php migrate.php
 
 ## Run backend (development)
 
+You can run the backend in two ways: using the project's Composer scripts (recommended) or running PHP commands directly.
+
+Option 1 — Composer scripts (recommended):
+
 ```bash
 cd backend
-composer install
-php migrate.php
+composer install            # install PHP dependencies
+composer run dump           # refresh autoload (optional)
+composer run migrate        # apply migrations (same as php migrate.php)
+composer run serve          # start the dev server (php -S localhost:8000 -t public)
+```
+
+Option 2 — Direct PHP (no Composer scripts):
+
+```bash
+cd backend
+composer install            # still recommended to install vendor/bin/phpunit etc.
+php migrate.php             # run migrations directly with PHP
 php -S localhost:8000 -t public
 ```
 
@@ -162,7 +176,7 @@ and communicates with the backend via REST endpoints.
 
 ## Testing (PHPUnit)
 
-Run backend unit tests:
+Run backend unit tests (recommended via Composer):
 
 ```bash
 cd backend
@@ -170,7 +184,16 @@ composer install
 composer run test
 ```
 
-Tests use the DI container so dependencies are mocked for isolated unit tests.
+Common alternatives (run directly with PHPUnit):
+
+- Run all tests:
+
+```bash
+cd backend
+./vendor/bin/phpunit -c phpunit.xml --testdox
+```
+
+Tests use the DI container so dependencies are mocked for isolated unit tests. If `vendor/bin/phpunit` is missing, run `composer install` first.
 
 ---
 
@@ -197,4 +220,4 @@ To run tests without coverage use `composer run test` (from `backend/`).
 ---
 
 ## License
-MIT © Phùng Quốc Việt
+MIT © Viet Phung
