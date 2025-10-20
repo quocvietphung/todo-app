@@ -25,7 +25,7 @@ $container = Container::getInstance();
 // Retrieve the PDO connection via the Container (auto-injected Database instance)
 $pdo = $container->get(PDO::class);
 
-// Scan all migration files in the /migrations directory (excluding interfaces)
+// Scan all migration files in the migrations directory (excluding interfaces)
 $migrationFiles = array_filter(
     glob(__DIR__ . '/migrations/*.php'),
     fn($f) => stripos($f, 'Interface') === false
